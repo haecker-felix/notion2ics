@@ -1,3 +1,5 @@
+LABEL org.opencontainers.image.source https://github.com/haecker-felix/notion2ics
+
 # Build stage
 
 FROM rust:1.68-buster as cargo-build
