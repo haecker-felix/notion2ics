@@ -84,6 +84,7 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
 
     for database_page in &response.pages {
         let mut date: Option<Date> = None;
+        let mut title_prefix = String::new();
 
         // Optional additional information which gets set as description in ics event
         let mut additional = Vec::new();
@@ -140,6 +141,17 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
                     prop_emoji = "🚹";
                     prop_value = text;
                 }
+                NotionPropertyValue::Status(value) => {
+                    prop_emoji = "⏺️";
+                    prop_value = value.name.clone();
+
+                    title_prefix = match &value.id {
+                        NotionSelectType::Done => "✅".into(),
+                        NotionSelectType::InProgress => "🟧".into(),
+                        NotionSelectType::NotStarted => "🔲".into(),
+                        _ => "".into(),
+                    };
+                }
                 NotionPropertyValue::Relation(value) => {
                     for relation in value {
                         println!("Fetching database relation... ({prop_name})");
@@ -157,11 +169,16 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
             }
         }
 
+        let mut title = database_page.title();
+        if !title_prefix.is_empty() {
+            title = format!("({title_prefix}) {title}");
+        }
+
         // We only care about pages which have a `Date` property set
         if let Some(date) = date {
             let entry = DateEntry {
                 id: database_page.id.clone(),
-                title: database_page.title(),
+                title,
                 date,
                 url: database_page.url.clone(),
                 additional,

@@ -70,6 +70,7 @@ pub enum NotionPropertyValue {
     MultiSelect(Vec<NotionSelect>),
     Relation(Vec<NotionRelation>),
     People(Vec<NotionPerson>),
+    Status(NotionSelect),
 
     /* Ignored properties */
     Checkbox(Value),
@@ -82,7 +83,6 @@ pub enum NotionPropertyValue {
     LastEditedTime(Value),
     PhoneNumber(Value),
     Rollup(Value),
-    Status(Value),
 
     #[default]
     Unknown,
@@ -111,12 +111,6 @@ pub struct NotionDate {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct NotionSelect {
-    pub name: String,
-    pub color: String,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct NotionRelation {
     pub id: String,
 }
@@ -125,4 +119,23 @@ pub struct NotionRelation {
 pub struct NotionPerson {
     pub id: String,
     pub name: Option<String>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum NotionSelectType {
+    // Standard notion values
+    NotStarted,
+    InProgress,
+    Done,
+    // User-created status
+    #[serde(other)]
+    #[default]
+    Unknown,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct NotionSelect {
+    pub id: NotionSelectType,
+    pub name: String,
 }
