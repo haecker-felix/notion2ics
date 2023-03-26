@@ -42,7 +42,7 @@ impl NotionPage {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct NotionIcon {
-    pub emoji: String,
+    pub emoji: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -150,7 +150,8 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
 
         // We only care about pages which have a `Date` property set
         if let Some(date) = date {
-            let emoji = database_page.icon.clone().map(|i| i.emoji);
+            let emoji = database_page.icon.clone().map(|i| i.emoji).flatten();
+
             let entry = DateEntry {
                 emoji,
                 id: database_page.id.clone(),
