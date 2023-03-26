@@ -8,11 +8,11 @@ Create a subscribable calendar from a Notion database
 
 **Example**: A database entry from Notion website:
 
-<img src="https://user-images.githubusercontent.com/6001248/227716980-4fe36f80-a378-469a-8372-9af76c6cdbc4.png" width="600">
+<img src="https://user-images.githubusercontent.com/6001248/227783137-0831e658-0d99-4d24-b2bd-43432940542e.png" width="600">
 
 and the same entry as calendar event (Thunderbird):
 
-![image](https://user-images.githubusercontent.com/6001248/227716905-9e6784bf-b95a-470c-91fb-eeca9f4429b3.png)
+![image](https://user-images.githubusercontent.com/6001248/227783200-e990548d-275a-406f-8bf4-20ce4f74971a.png)
 
 
 ## Usage
