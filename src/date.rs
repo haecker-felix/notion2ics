@@ -6,7 +6,6 @@ use crate::notion::NotionDate;
 #[derive(Default, Debug, Clone)]
 pub struct DateEntry {
     pub id: String,
-    pub emoji: Option<String>,
     pub title: String,
     pub date: Date,
     pub url: String,
@@ -21,12 +20,7 @@ impl DateEntry {
         event.uid(&self.id);
 
         // Summary
-        let summary = if let Some(emoji) = &self.emoji {
-            format!("{} {}", emoji, self.title)
-        } else {
-            self.title.clone()
-        };
-        event.summary(&summary);
+        event.summary(&self.title);
 
         // Description text
         let mut description = String::new();

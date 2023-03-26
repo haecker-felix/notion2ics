@@ -23,20 +23,26 @@ pub struct NotionPage {
 
 impl NotionPage {
     pub fn title(&self) -> String {
+        let mut title = String::new();
+
         for property in self.properties.values() {
             match &property.value {
                 NotionPropertyValue::Title(value) => {
                     // Assume that the first array entry is the text
                     if let Some(value) = value.first() {
-                        return value.plain_text.clone();
+                        title = value.plain_text.clone();
                     }
                 }
                 _ => (),
             }
         }
 
-        // Fallback
-        String::new()
+        // Optional page emoji
+        if let Some(emoji) = &self.icon.clone().map(|i| i.emoji).flatten() {
+            title = format!("{emoji} {title}");
+        }
+
+        title
     }
 }
 
