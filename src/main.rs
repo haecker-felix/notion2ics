@@ -12,6 +12,7 @@ use notion::*;
 mod date;
 use date::*;
 
+use std::collections::BTreeMap;
 use std::fs::OpenOptions;
 use std::io::Write;
 
@@ -87,7 +88,7 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
         let mut title_prefix = String::new();
 
         // Optional additional information which gets set as description in ics event
-        let mut additional = Vec::new();
+        let mut additional = BTreeMap::new();
 
         for (prop_name, prop) in &database_page.properties {
             let prop_name = prop_name.clone();
@@ -165,7 +166,7 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
             }
 
             if !prop_value.is_empty() {
-                additional.push((format!("{prop_emoji} {prop_name}"), prop_value));
+                additional.insert(format!("{prop_emoji} {prop_name}"), prop_value);
             }
         }
 

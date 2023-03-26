@@ -3,6 +3,8 @@ use icalendar::{Component, DatePerhapsTime, Event, EventLike};
 
 use crate::notion::NotionDate;
 
+use std::collections::BTreeMap;
+
 #[derive(Default, Debug, Clone)]
 pub struct DateEntry {
     pub id: String,
@@ -10,7 +12,7 @@ pub struct DateEntry {
     pub date: Date,
     pub url: String,
 
-    pub additional: Vec<(String, String)>,
+    pub additional: BTreeMap<String, String>,
 }
 
 impl DateEntry {
