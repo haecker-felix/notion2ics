@@ -26,19 +26,16 @@ impl NotionPage {
         let mut title = String::new();
 
         for property in self.properties.values() {
-            match &property.value {
-                NotionPropertyValue::Title(value) => {
-                    // Assume that the first array entry is the text
-                    if let Some(value) = value.first() {
-                        title = value.plain_text.clone();
-                    }
+            if let NotionPropertyValue::Title(value) = &property.value {
+                // Assume that the first array entry is the text
+                if let Some(value) = value.first() {
+                    title = value.plain_text.clone();
                 }
-                _ => (),
             }
         }
 
         // Optional page emoji
-        if let Some(emoji) = &self.icon.clone().map(|i| i.emoji).flatten() {
+        if let Some(emoji) = &self.icon.clone().and_then(|i| i.emoji) {
             title = format!("{emoji} {title}");
         }
 

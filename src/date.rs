@@ -91,7 +91,7 @@ impl TryFrom<NotionDate> for Date {
 
         // end (optional)
         if let Some(end) = &value.end {
-            if let Ok(end) = DateTime::parse_from_rfc3339(&end) {
+            if let Ok(end) = DateTime::parse_from_rfc3339(end) {
                 date.end_date = Some(end.date_naive());
                 date.end_time = Some(end.time());
             } else {

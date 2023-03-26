@@ -59,7 +59,7 @@ async fn main() {
     loop {
         // Iterate through database ids
         for database_id in &args.database {
-            let entries = notion_query_database(&client, &database_id).await;
+            let entries = notion_query_database(&client, database_id).await;
             create_ics(
                 &entries,
                 &format!("{}{}.ics", args.output_path, database_id),
@@ -96,10 +96,8 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
             let mut prop_value = String::new();
 
             match &prop.value {
-                NotionPropertyValue::Date(value) => {
-                    if let Some(value) = value {
-                        date = Date::try_from(value.clone()).ok();
-                    }
+                NotionPropertyValue::Date(Some(value)) => {
+                    date = Date::try_from(value.clone()).ok();
                 }
                 NotionPropertyValue::Number(value) => {
                     prop_emoji = "🔢";
@@ -127,11 +125,9 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
                     prop_emoji = "➡️";
                     prop_value = text;
                 }
-                NotionPropertyValue::Select(value) => {
-                    if let Some(value) = value {
-                        prop_emoji = "▶️";
-                        prop_value = value.name.clone();
-                    }
+                NotionPropertyValue::Select(Some(value)) => {
+                    prop_emoji = "▶️";
+                    prop_value = value.name.clone();
                 }
                 NotionPropertyValue::People(value) => {
                     let mut text = String::new();
