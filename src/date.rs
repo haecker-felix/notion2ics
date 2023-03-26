@@ -16,12 +16,17 @@ pub struct DateEntry {
 
 impl DateEntry {
     pub fn as_event(&self) -> Event {
+        // Create calendar event
+        let mut event = Event::new();
+        event.uid(&self.id);
+
         // Summary
         let summary = if let Some(emoji) = &self.emoji {
             format!("{} {}", emoji, self.title)
         } else {
             self.title.clone()
         };
+        event.summary(&summary);
 
         // Description text
         let mut description = String::new();
@@ -29,36 +34,39 @@ impl DateEntry {
             description += &format!("{}: {}\n", name, value);
         }
         description += &format!("---\n{}", self.url);
+        event.description(&description);
 
         // Starts
-        let starts: DatePerhapsTime = if let Some(start_time) = self.date.start_time {
+        if let Some(start_time) = self.date.start_time {
             // Event with date + time
-            DatePerhapsTime::DateTime(self.date.start_date.and_time(start_time).into())
+            event.starts(DatePerhapsTime::from(
+                self.date.start_date.and_time(start_time),
+            ));
         } else {
             // Event without time
-            DatePerhapsTime::Date(self.date.start_date)
-        };
+            event.starts(DatePerhapsTime::from(self.date.start_date));
+        }
 
-        let ends = if let Some(end_date) = self.date.end_date {
+        // Ends
+        if let Some(end_date) = self.date.end_date {
             if let Some(end_time) = self.date.end_time {
                 // Event with date + time
-                DatePerhapsTime::DateTime(end_date.and_time(end_time).into())
+                event.ends(DatePerhapsTime::from(end_date.and_time(end_time)));
             } else {
                 // Event without time
-                DatePerhapsTime::Date(end_date)
+                event.ends(DatePerhapsTime::from(end_date));
             }
         } else {
-            // no end date set
-            starts.clone()
-        };
+            // If the event has a start time, it also needs a end time.
+            // If it isn't set on notion side, we just set a duration of one hour.
+            if let Some(start_time) = self.date.start_time {
+                let starts = self.date.start_date.and_time(start_time);
+                let ends = starts + chrono::Duration::hours(1);
+                event.ends(DatePerhapsTime::from(ends));
+            }
+        }
 
-        // Create calendar event
-        Event::new()
-            .starts(starts)
-            .ends(ends)
-            .summary(&summary)
-            .description(&description)
-            .done()
+        event.done()
     }
 }
 
