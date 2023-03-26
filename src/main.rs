@@ -106,20 +106,20 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
                 NotionPropertyValue::RichText(value) => {
                     let mut text = String::new();
                     for t in value {
-                        text += &format!("{text} {}", t.plain_text);
+                        text += &format!("{} ", t.plain_text);
                     }
 
                     prop_emoji = "🇹";
                     prop_value = text;
                 }
                 NotionPropertyValue::Url(value) => {
-                    prop_emoji = "🌍️";
+                    prop_emoji = "ℹ️";
                     prop_value = value.clone().unwrap_or_default();
                 }
                 NotionPropertyValue::MultiSelect(value) => {
                     let mut text = String::new();
                     for ms in value {
-                        text += &format!("{text} {}", ms.name);
+                        text += &format!("{} ", ms.name);
                     }
 
                     prop_emoji = "➡️";
@@ -130,6 +130,15 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
                         prop_emoji = "▶️";
                         prop_value = value.name.clone();
                     }
+                }
+                NotionPropertyValue::People(value) => {
+                    let mut text = String::new();
+                    for ms in value {
+                        text += &format!("{} ", ms.name.clone().unwrap_or("NoName".into()));
+                    }
+
+                    prop_emoji = "🚹";
+                    prop_value = text;
                 }
                 NotionPropertyValue::Relation(value) => {
                     for relation in value {

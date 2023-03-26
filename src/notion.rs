@@ -69,6 +69,7 @@ pub enum NotionPropertyValue {
     Select(Option<NotionSelect>),
     MultiSelect(Vec<NotionSelect>),
     Relation(Vec<NotionRelation>),
+    People(Vec<NotionPerson>),
 
     /* Ignored properties */
     Checkbox(Value),
@@ -79,7 +80,6 @@ pub enum NotionPropertyValue {
     Formula(Value),
     LastEditedBy(Value),
     LastEditedTime(Value),
-    People(Value),
     PhoneNumber(Value),
     Rollup(Value),
     Status(Value),
@@ -119,4 +119,10 @@ pub struct NotionSelect {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct NotionRelation {
     pub id: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct NotionPerson {
+    pub id: String,
+    pub name: Option<String>,
 }
