@@ -1,4 +1,4 @@
-use chrono::{DateTime, NaiveDate, NaiveTime};
+use chrono::{DateTime, FixedOffset, NaiveDate, NaiveTime};
 use icalendar::{Component, DatePerhapsTime, Event, EventLike};
 
 use crate::notion::NotionDate;
@@ -10,6 +10,7 @@ pub struct DateEntry {
     pub id: String,
     pub title: String,
     pub date: Date,
+    pub last_edited: DateTime<FixedOffset>,
     pub url: String,
 
     pub additional: BTreeMap<String, String>,
@@ -29,7 +30,18 @@ impl DateEntry {
         for (name, value) in &self.additional {
             description += &format!("{}: {}\n", name, value);
         }
-        description += &format!("---\n{}", self.url);
+
+        // Last Edit (the notion page itself)
+        let last_edit = self.last_edited.format("%d/%m/%Y %H:%M");
+        description += &format!("---\n✏️ Last Edited: {last_edit}\n");
+
+        // Last Notion sync
+        let now = chrono::Utc::now().format("%d/%m/%Y %H:%M");
+        description += &format!("🔄 Last Notion Sync: {now} (UTC)\n");
+
+        // Url
+        description += &format!("---\n{}\n", self.url);
+
         event.description(&description);
 
         // Starts

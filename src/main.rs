@@ -1,4 +1,6 @@
+use chrono::DateTime;
 use icalendar::Calendar;
+use serde_path_to_error::Error;
 
 use surf::Url;
 use surf::{Client, Config};
@@ -79,10 +81,12 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
 
     let db_uri = format!("databases/{database_id}/query");
     let mut res = client.post(db_uri).body_string("{}".into()).await.unwrap();
+    let content = res.body_string().await.unwrap();
 
-    let response: NotionDatabaseResponse = res.body_json().await.unwrap();
+    let deserializer = &mut serde_json::Deserializer::from_str(&content);
+    let response: NotionDatabaseResponse = serde_path_to_error::deserialize(deserializer).unwrap();
+
     let mut date_entries: Vec<DateEntry> = Vec::new();
-
     for database_page in &response.pages {
         let mut date: Option<Date> = None;
         let mut title_prefix = String::new();
@@ -153,9 +157,15 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
                     for relation in value {
                         println!("Fetching database relation... ({prop_name})");
                         let page = fetch_notion_page(client, &relation.id).await;
-
-                        prop_emoji = "↗️";
-                        prop_value = page.title();
+                        match page {
+                            Ok(page) => {
+                                prop_emoji = "↗️";
+                                prop_value = page.title();
+                            }
+                            Err(err) => {
+                                println!("Unable to retrieve Notion relation: {}", err.to_string())
+                            }
+                        }
                     }
                 }
                 _ => (),
@@ -172,11 +182,15 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
         }
 
         // We only care about pages which have a `Date` property set
+        let last_edited = DateTime::parse_from_rfc3339(&database_page.last_edited_time)
+            .expect("Unable to parse Notion last_edited_time");
+
         if let Some(date) = date {
             let entry = DateEntry {
                 id: database_page.id.clone(),
                 title,
                 date,
+                last_edited,
                 url: database_page.url.clone(),
                 additional,
             };
@@ -187,12 +201,16 @@ async fn notion_query_database(client: &Client, database_id: &str) -> Vec<DateEn
     date_entries
 }
 
-async fn fetch_notion_page(client: &Client, page_id: &str) -> NotionPage {
+async fn fetch_notion_page(
+    client: &Client,
+    page_id: &str,
+) -> Result<NotionPage, Error<serde_json::Error>> {
     let db_uri = format!("pages/{page_id}");
     let mut res = client.get(db_uri).await.unwrap();
+    let content = res.body_string().await.unwrap();
 
-    let response: NotionPage = res.body_json().await.unwrap();
-    response
+    let deserializer = &mut serde_json::Deserializer::from_str(&content);
+    serde_path_to_error::deserialize(deserializer)
 }
 
 /// Write *.ics file
